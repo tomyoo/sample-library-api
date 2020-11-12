@@ -81,6 +81,15 @@ def test_create_book_request_with_invalid_user(client, book):
     assert response.status_code == 404
 
 
+def test_create_book_request_with_invalid_email(client, book):
+    response = client.post("/request", json={
+        "email": "thisisnotanemail",
+        "title": book.title,
+    })
+
+    assert response.status_code == 422
+
+
 def test_delete_book_request(client, book_request):
     response = client.delete(f"/request/{book_request.id}")
 
