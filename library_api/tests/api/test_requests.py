@@ -88,6 +88,7 @@ def test_create_book_request_with_invalid_email(client, book):
     })
 
     assert response.status_code == 422
+    assert response.json["message"]["json"]["email"][0] == "Not a valid email address."
 
 
 def test_delete_book_request(client, book_request):
