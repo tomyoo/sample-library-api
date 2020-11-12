@@ -8,8 +8,8 @@ from ..extensions import db
 from .factories import UserFactory, BookFactory, BookRequestFactory
 
 TEST_SETTINGS = {
-    'SQLALCHEMY_DATABASE_URI': 'sqlite://',
-    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+    "SQLALCHEMY_DATABASE_URI": "sqlite://",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
 }
 
 
