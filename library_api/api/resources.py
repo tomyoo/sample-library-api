@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, current_app
 from webargs import fields, validate
 from webargs.flaskparser import parser
 from datetime import datetime
+from sqlalchemy import exists
 
 from .schema import BookRequestSchema
 from ..models.models import User, Book, BookRequest
@@ -13,6 +14,7 @@ api = Blueprint('api', __name__)
 
 class BookRequestsView(ModelResource):
     schema = BookRequestSchema
+    route_base = '/request'
 
     def index(self):
         query = BookRequest.query.filter_by(deleted_at=None)
@@ -28,8 +30,12 @@ class BookRequestsView(ModelResource):
 
         user = User.query.filter_by(email=args["email"]).first_or_404()
         book = Book.query.filter_by(title=args["title"]).first_or_404()
+        request_exists = db.session.query(
+            db.session.query(BookRequest).filter(
+                BookRequest.book == book and BookRequest.deleted_at is None
+            ).exists()).scalar()
 
-        if book.current_request is None:  # Book is available
+        if not request_exists:  # Book is available
             new_request = BookRequest(
                 book=book,
                 user=user
@@ -42,7 +48,7 @@ class BookRequestsView(ModelResource):
                     "id": book.id,
                     "available": True,
                     "title": book.title,
-                    "timestamp": new_request.created_at,
+                    "timestamp": new_request.created_at.strftime('%Y-%m-%dT%H:%M:%S.%f'),
                 }
             ), 201
 
@@ -52,9 +58,9 @@ class BookRequestsView(ModelResource):
                     "id": book.id,
                     "available": False,
                     "title": book.title,
-                    "timestamp": datetime.now(),
+                    "timestamp": datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
                 }
-            ), 200
+            ), 400
 
     def delete(self, _id):
         request_obj = self._model.query.get_or_404(_id)

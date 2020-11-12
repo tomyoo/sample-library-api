@@ -15,9 +15,6 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50))
 
-    current_request_id = db.Column(db.Integer, db.ForeignKey('book_requests.id'))
-    current_request = db.relationship('BookRequest', foreign_keys=current_request_id)
-
 
 class BookRequest(db.Model):
     __tablename__ = 'book_requests'
